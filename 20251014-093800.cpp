@@ -1,19 +1,18 @@
-#include<stdio.h>
-int main()
-{
-int cat1,cat2,mainexam,marks;
- printf("Enter cat1:");
- scanf("%d", &cat1);
-  printf("Enter cat2:");
-  scanf("%d", &cat2);
-  printf("Enter mainexam:");
-  scanf("%d", &mainexam);
-  marks = (cat1+cat2)/2 + mainexam;
-  if(marks >= 40){
-  printf("passed");
-  }
-  else {
-  printf("failed");
-  }
-    return 0;
+int sensorPin = A0;
+int value;
+int percentage;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  value = analogRead(sensorPin);
+
+  percentage = map(value, 1023, 0, 0, 100); // Convert to %
+  Serial.print("Moisture: ");
+  Serial.print(percentage);
+  Serial.println("%");
+
+  delay(500);
 }
