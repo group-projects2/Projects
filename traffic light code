@@ -1,0 +1,64 @@
+int red = 12;
+int yellow = 11;
+int green = 10;
+
+int pushButton = 9;
+int buttonState = 0;        
+int lastButtonState = 0;   
+bool trafficOn = false;     
+
+void setup() {
+  pinMode(red, OUTPUT);
+  pinMode(yellow, OUTPUT);
+  pinMode(green, OUTPUT);
+  pinMode(pushButton, INPUT);
+
+  digitalWrite(red, LOW);
+  digitalWrite(yellow, LOW);
+  digitalWrite(green, LOW);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  buttonState = digitalRead(pushButton);
+
+  buttonState == HIGH && lastButtonState == LOW) {
+    trafficOn = !trafficOn;  
+    delay(200);
+  }
+
+  lastButtonState = buttonState;
+
+  if (trafficOn) {
+    Serial.println("Traffic light ON!");
+    
+    
+    digitalWrite(red, LOW);
+    digitalWrite(yellow, HIGH);
+    digitalWrite(green, LOW);
+    Serial.println("Pedestrians waiting...");
+    delay(2000);
+
+    
+    digitalWrite(red, LOW);
+    digitalWrite(yellow, LOW);
+    digitalWrite(green, HIGH);
+    Serial.println("Pedestrians crossing...");
+    delay(2500);
+
+    
+    digitalWrite(red, HIGH);
+    digitalWrite(yellow, LOW);
+    digitalWrite(green, LOW);
+    Serial.println("Pedestrians must stop.");
+    delay(3000);
+  } else {
+    
+    digitalWrite(red, LOW);
+    digitalWrite(yellow, LOW);
+    digitalWrite(green, LOW);
+    Serial.println("Traffic light OFF!");
+    delay(1000);
+  }
+}
