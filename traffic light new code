@@ -1,0 +1,114 @@
+int red = 12;
+int yellow = 11;
+int green = 10;
+
+int pushButton = 9;
+int buttonState = 0;
+int lastButtonState = 0;
+unsigned long lastDebounceTime = 0;
+unsigned long debounceDelay = 50;
+
+bool trafficOn = false;
+
+// Traffic state machine
+unsigned long lastStepTime = 0;
+int trafficStep = 0;
+
+void setup() {
+  pinMode(red, OUTPUT);
+  pinMode(yellow, OUTPUT);
+  pinMode(green, OUTPUT);
+  pinMode(pushButton, INPUT);
+
+  pinMode(LED_BUILTIN, OUTPUT);  // Keep the blink LED
+
+  Serial.begin(9600);
+}
+
+void loop() {
+
+  // =======================
+  // BUTTON WITH DEBOUNCE
+  // =======================
+  int reading = digitalRead(pushButton);
+
+  if (reading != lastButtonState) {
+    lastDebounceTime = millis();
+  }
+
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (reading == HIGH && buttonState == LOW) {
+      trafficOn = !trafficOn; // Toggle ON/OFF
+      Serial.println(trafficOn ? "Traffic light ON!" : "Traffic light OFF!");
+
+      if (!trafficOn) {
+        // turn all LEDs OFF when turned off
+        digitalWrite(red, LOW);
+        digitalWrite(yellow, LOW);
+        digitalWrite(green, LOW);
+      }
+
+      // reset state machine
+      trafficStep = 0;
+      lastStepTime = millis();
+    }
+    buttonState = reading;
+  }
+
+  lastButtonState = reading;
+
+
+  // =======================
+  // TRAFFIC LIGHT LOGIC
+  // =======================
+  if (trafficOn) {
+
+    unsigned long now = millis();
+
+    switch (trafficStep) {
+
+      case 0:   // yellow ON
+        digitalWrite(red, LOW);
+        digitalWrite(yellow, HIGH);
+        digitalWrite(green, LOW);
+        Serial.println("Pedestrians waiting...");
+        if (now - lastStepTime > 2000) {
+          trafficStep = 1;
+          lastStepTime = now;
+        }
+        break;
+
+      case 1:   // green ON
+        digitalWrite(yellow, LOW);
+        digitalWrite(green, HIGH);
+        Serial.println("Pedestrians crossing...");
+        if (now - lastStepTime > 2500) {
+          trafficStep = 2;
+          lastStepTime = now;
+        }
+        break;
+
+      case 2:   // red ON
+        digitalWrite(green, LOW);
+        digitalWrite(red, HIGH);
+        Serial.println("Pedestrians must stop.");
+        if (now - lastStepTime > 3000) {
+          trafficStep = 0;
+          lastStepTime = now;
+        }
+        break;
+    }
+  }
+
+  // =======================
+  // Optional: built-in LED blink
+  // =======================
+  static unsigned long blinkTimer = 0;
+  static bool ledState = false;
+
+  if (millis() - blinkTimer > 1000) {
+    ledState = !ledState;
+    digitalWrite(LED_BUILTIN, ledState);
+    blinkTimer = millis();
+  }
+}
